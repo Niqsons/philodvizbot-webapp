@@ -55,7 +55,11 @@ export default function App() {
       return;
     }
 
-    fetch(`${API_URL}/api/events/${eventId}`)
+    fetch(`${API_URL}/api/events/${eventId}`, {
+      headers: {
+        'ngrok-skip-browser-warning': 'true'
+      }
+    })
       .then(res => res.json())
       .then(data => {
         if (data.error) {

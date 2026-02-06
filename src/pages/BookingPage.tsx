@@ -32,7 +32,10 @@ export default function BookingPage({ event, apiUrl, onBookingCreated }: Props) 
 
       const response = await fetch(`${apiUrl}/api/bookings`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        },
         body: JSON.stringify({
           eventId: event.id,
           guestInfo: guestInfo.trim(),

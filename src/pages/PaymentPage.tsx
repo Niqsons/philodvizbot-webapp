@@ -37,6 +37,9 @@ export default function PaymentPage({ booking, apiUrl, onReceiptUploaded }: Prop
 
       const response = await fetch(`${apiUrl}/api/bookings/${booking.bookingId}/receipt`, {
         method: 'POST',
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        },
         body: formData,
       });
 
