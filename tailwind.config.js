@@ -7,16 +7,22 @@ export default {
   theme: {
     extend: {
       colors: {
-        telegram: {
-          bg: 'var(--tg-theme-bg-color, #ffffff)',
-          text: 'var(--tg-theme-text-color, #000000)',
-          hint: 'var(--tg-theme-hint-color, #999999)',
-          link: 'var(--tg-theme-link-color, #2481cc)',
-          button: 'var(--tg-theme-button-color, #2481cc)',
-          buttonText: 'var(--tg-theme-button-text-color, #ffffff)',
-          secondary: 'var(--tg-theme-secondary-bg-color, #f0f0f0)',
-        }
-      }
+        marble: {
+          light: '#F5F0E8',
+          dark: '#E8E0D0',
+        },
+        terracotta: '#C4A484',
+        bronze: {
+          DEFAULT: '#5D4E37',
+          light: '#8B7355',
+        },
+        gold: '#D4AF37',
+        olive: '#6B8E23',
+        wine: '#722F37',
+      },
+      fontFamily: {
+        ancient: ['Georgia', 'Times New Roman', 'serif'],
+      },
     },
   },
   plugins: [],

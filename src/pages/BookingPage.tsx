@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Event, BookingData } from '../App';
+import { Column, Amphora, Diogenes, LaurelWreath } from '../components/AncientElements';
 
 interface Props {
   event: Event;
@@ -18,7 +19,7 @@ export default function BookingPage({ event, apiUrl, onBookingCreated }: Props) 
 
   const handleSubmit = async () => {
     if (!guestInfo.trim()) {
-      setError('Заполните информацию о себе');
+      setError('Назови себя, о странник!');
       return;
     }
 
@@ -26,7 +27,6 @@ export default function BookingPage({ event, apiUrl, onBookingCreated }: Props) 
     setError(null);
 
     try {
-      // Получаем данные из Telegram WebApp
       const tg = (window as any).Telegram?.WebApp;
       const user = tg?.initDataUnsafe?.user;
 
@@ -53,7 +53,7 @@ export default function BookingPage({ event, apiUrl, onBookingCreated }: Props) 
         onBookingCreated(data);
       }
     } catch (e) {
-      setError('Ошибка соединения');
+      setError('Боги Олимпа не отвечают...');
     } finally {
       setLoading(false);
     }
@@ -61,80 +61,114 @@ export default function BookingPage({ event, apiUrl, onBookingCreated }: Props) 
 
 
   return (
-    <div className="p-4">
-      {/* Заголовок мероприятия */}
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-telegram-text mb-2">{event.title}</h1>
-        <div className="text-telegram-hint text-sm space-y-1">
-          <div>📅 {event.date}</div>
-          <div>📍 {event.location}</div>
-          <div>🎟 Свободно мест: {event.availableSeats} из {event.totalSeats}</div>
+    <div className="min-h-screen p-4 relative overflow-hidden">
+      {/* Декоративные колонны по бокам */}
+      <Column className="absolute left-2 top-0 h-full w-8 text-[#C4A484] opacity-30" />
+      <Column className="absolute right-2 top-0 h-full w-8 text-[#C4A484] opacity-30" />
+      
+      {/* Основной контент */}
+      <div className="relative z-10 max-w-md mx-auto">
+        
+        {/* Диоген наверху */}
+        <div className="flex justify-center mb-2">
+          <Diogenes className="w-20 h-24" />
         </div>
-      </div>
 
-      {/* Информация о себе */}
-      <div className="mb-4">
-        <label className="block text-telegram-text text-sm font-medium mb-2">
-          О себе
-        </label>
-        <textarea
-          value={guestInfo}
-          onChange={(e) => setGuestInfo(e.target.value)}
-          placeholder="Ваше имя, контакт или любая информация..."
-          className="w-full p-3 rounded-lg bg-telegram-secondary text-telegram-text 
-                     placeholder-telegram-hint border-none outline-none resize-none"
-          rows={3}
-        />
-      </div>
-
-      {/* Выбор количества мест */}
-      <div className="mb-6">
-        <label className="block text-telegram-text text-sm font-medium mb-2">
-          Количество мест
-        </label>
-        <div className="flex gap-2">
-          {[1, 2, 3, 4, 5].map((num) => (
-            <button
-              key={num}
-              disabled={num > maxSeats}
-              onClick={() => setSeatsCount(num)}
-              className={`flex-1 py-3 rounded-lg font-medium transition-colors
-                ${num === seatsCount 
-                  ? 'bg-telegram-button text-telegram-buttonText' 
-                  : 'bg-telegram-secondary text-telegram-text'}
-                ${num > maxSeats ? 'opacity-30 cursor-not-allowed' : ''}`}
-            >
-              {num}
-            </button>
-          ))}
+        {/* Заголовок с лавровым венком */}
+        <div className="text-center mb-4">
+          <LaurelWreath className="w-32 h-8 mx-auto text-[#6B8E23] mb-1" />
+          <h1 className="text-2xl ancient-title">{event.title}</h1>
+          <p className="text-sm hint-text italic mt-1">Симпосий мудрецов</p>
         </div>
-      </div>
 
-
-      {/* Итого */}
-      <div className="mb-4 p-4 bg-telegram-secondary rounded-lg">
-        <div className="flex justify-between items-center">
-          <span className="text-telegram-hint">Итого:</span>
-          <span className="text-xl font-bold text-telegram-text">{totalAmount} ₽</span>
+        {/* Информация о мероприятии */}
+        <div className="marble-card p-4 mb-4">
+          <div className="flex items-start gap-3">
+            <Amphora className="w-10 h-16 text-[#C4A484] flex-shrink-0" />
+            <div className="space-y-1 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="gold-accent">📅</span>
+                <span>{event.date}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="gold-accent">🏛</span>
+                <span>{event.location}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="gold-accent">🏺</span>
+                <span>Свободных мест: {event.availableSeats} из {event.totalSeats}</span>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Ошибка */}
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-600 rounded-lg text-sm">
-          {error}
+        {/* Поле ввода имени */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2 ancient-title">
+            🪶 Как тебя величать, о философ?
+          </label>
+          <textarea
+            value={guestInfo}
+            onChange={(e) => setGuestInfo(e.target.value)}
+            placeholder="Имя твоё и весть о тебе..."
+            className="w-full p-3 ancient-input resize-none"
+            rows={3}
+          />
         </div>
-      )}
 
-      {/* Кнопка оплаты */}
-      <button
-        onClick={handleSubmit}
-        disabled={loading || event.availableSeats === 0}
-        className="w-full py-4 bg-telegram-button text-telegram-buttonText 
-                   font-medium rounded-lg disabled:opacity-50"
-      >
-        {loading ? 'Загрузка...' : '💳 Оплатить'}
-      </button>
+        {/* Выбор количества мест */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2 ancient-title">
+            🍷 Сколько мест за столом?
+          </label>
+          <div className="flex gap-2">
+            {[1, 2, 3, 4, 5].map((num) => (
+              <button
+                key={num}
+                disabled={num > maxSeats}
+                onClick={() => setSeatsCount(num)}
+                className={`flex-1 py-3 rounded font-bold transition-all border-2
+                  ${num === seatsCount 
+                    ? 'bg-[#5D4E37] text-[#F5F0E8] border-[#D4AF37]' 
+                    : 'bg-[#F5F0E8] text-[#5D4E37] border-[#C4A484] hover:border-[#5D4E37]'}
+                  ${num > maxSeats ? 'opacity-30 cursor-not-allowed' : ''}`}
+              >
+                {num}
+              </button>
+            ))}
+          </div>
+        </div>
+
+
+        {/* Итого */}
+        <div className="marble-card p-4 mb-4">
+          <div className="flex justify-between items-center">
+            <span className="hint-text">Дань за симпосий:</span>
+            <span className="text-2xl font-bold wine-text">{totalAmount} драхм</span>
+          </div>
+          <p className="text-xs hint-text mt-1 italic text-right">(в рублях)</p>
+        </div>
+
+        {/* Ошибка */}
+        {error && (
+          <div className="mb-4 p-3 bg-[#722F37] bg-opacity-20 border border-[#722F37] rounded text-[#722F37] text-sm text-center">
+            ⚠️ {error}
+          </div>
+        )}
+
+        {/* Кнопка */}
+        <button
+          onClick={handleSubmit}
+          disabled={loading || event.availableSeats === 0}
+          className="w-full py-4 btn-ancient text-lg"
+        >
+          {loading ? '⏳ Совет богов...' : '🏛 Возлечь на ложе'}
+        </button>
+
+        <p className="text-center text-xs hint-text mt-3 italic">
+          "Я знаю, что ничего не знаю" — Сократ
+        </p>
+      </div>
     </div>
   );
 }

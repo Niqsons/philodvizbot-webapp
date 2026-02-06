@@ -2,10 +2,115 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Античная палитра */
+:root {
+  --marble-light: #F5F0E8;
+  --marble-dark: #E8E0D0;
+  --terracotta: #C4A484;
+  --bronze: #5D4E37;
+  --bronze-light: #8B7355;
+  --gold: #D4AF37;
+  --olive: #6B8E23;
+  --wine: #722F37;
+}
+
 body {
-  background-color: var(--tg-theme-bg-color, #ffffff);
-  color: var(--tg-theme-text-color, #000000);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(180deg, var(--marble-light) 0%, var(--marble-dark) 100%);
+  color: var(--bronze);
+  font-family: 'Georgia', 'Times New Roman', serif;
   margin: 0;
   padding: 0;
+  min-height: 100vh;
+}
+
+/* Греческий меандр бордер */
+.meander-border {
+  border: 3px solid var(--terracotta);
+  border-image: repeating-linear-gradient(
+    90deg,
+    var(--terracotta) 0px,
+    var(--terracotta) 10px,
+    transparent 10px,
+    transparent 15px,
+    var(--terracotta) 15px,
+    var(--terracotta) 25px
+  ) 1;
+}
+
+/* Кнопка в античном стиле */
+.btn-ancient {
+  background: linear-gradient(180deg, var(--terracotta) 0%, #A08060 100%);
+  color: var(--marble-light);
+  border: 2px solid var(--bronze);
+  border-radius: 4px;
+  font-family: 'Georgia', serif;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 8px rgba(93, 78, 55, 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-ancient:hover {
+  background: linear-gradient(180deg, #D4B896 0%, var(--terracotta) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(93, 78, 55, 0.4);
+}
+
+.btn-ancient:disabled {
+  opacity: 0.6;
+  transform: none;
+}
+
+/* Карточка с эффектом мрамора */
+.marble-card {
+  background: linear-gradient(135deg, #FFFEF9 0%, #F5EDE0 50%, #EBE3D5 100%);
+  border: 2px solid var(--terracotta);
+  border-radius: 8px;
+  box-shadow: 
+    0 4px 6px rgba(93, 78, 55, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Заголовок в античном стиле */
+.ancient-title {
+  color: var(--bronze);
+  font-family: 'Georgia', serif;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(93, 78, 55, 0.2);
+}
+
+/* Поле ввода */
+.ancient-input {
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid var(--terracotta);
+  border-radius: 4px;
+  color: var(--bronze);
+  font-family: 'Georgia', serif;
+}
+
+.ancient-input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+.ancient-input::placeholder {
+  color: var(--bronze-light);
+  opacity: 0.7;
+}
+
+/* Текст подсказки */
+.hint-text {
+  color: var(--bronze-light);
+}
+
+/* Золотой акцент */
+.gold-accent {
+  color: var(--gold);
+}
+
+/* Винный цвет для суммы */
+.wine-text {
+  color: var(--wine);
 }

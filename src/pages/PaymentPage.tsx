@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react';
-import type { Event, BookingData } from '../App';
+import type { BookingData } from '../App';
+import { Amphora, LaurelWreath } from '../components/AncientElements';
 
 interface Props {
   booking: BookingData;
-  event: Event;
   apiUrl: string;
   onReceiptUploaded: () => void;
 }
@@ -24,7 +24,7 @@ export default function PaymentPage({ booking, apiUrl, onReceiptUploaded }: Prop
 
   const handleUpload = async () => {
     if (!file) {
-      setError('Выберите файл чека');
+      setError('Приложи свиток с подтверждением!');
       return;
     }
 
@@ -51,7 +51,7 @@ export default function PaymentPage({ booking, apiUrl, onReceiptUploaded }: Prop
         onReceiptUploaded();
       }
     } catch (e) {
-      setError('Ошибка загрузки');
+      setError('Гермес не доставил послание...');
     } finally {
       setUploading(false);
     }
@@ -59,34 +59,41 @@ export default function PaymentPage({ booking, apiUrl, onReceiptUploaded }: Prop
 
 
   return (
-    <div className="p-4">
-      {/* Сумма к оплате */}
+    <div className="min-h-screen p-4 flex flex-col">
+      {/* Декоративный элемент */}
+      <div className="flex justify-center mb-4">
+        <Amphora className="w-16 h-24 text-[#C4A484]" />
+      </div>
+
+      {/* Сумма */}
       <div className="text-center mb-6">
-        <div className="text-telegram-hint text-sm mb-1">К оплате:</div>
-        <div className="text-3xl font-bold text-telegram-text">{booking.totalAmount} ₽</div>
+        <p className="hint-text text-sm mb-1">Дань за пиршество мудрости:</p>
+        <p className="text-4xl font-bold wine-text">{booking.totalAmount}</p>
+        <p className="text-lg hint-text">драхм (рублей)</p>
       </div>
 
       {/* Ссылка на оплату */}
-      <div className="mb-6">
+      <div className="marble-card p-4 mb-6">
+        <p className="text-center hint-text mb-3 text-sm">
+          Соверши подношение через T-Bank:
+        </p>
         <a
           href={booking.tbankLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="block w-full py-4 bg-yellow-400 text-black font-medium 
-                     rounded-lg text-center"
+          className="block w-full py-4 bg-[#FFDD2D] text-black font-bold 
+                     rounded text-center border-2 border-[#5D4E37]
+                     hover:bg-[#FFE44D] transition-colors"
         >
-          🏦 Перевести через T-Bank
+          🏦 Открыть врата T-Bank
         </a>
-        <p className="text-telegram-hint text-xs text-center mt-2">
-          Нажмите, чтобы открыть приложение T-Bank
-        </p>
       </div>
 
       {/* Разделитель */}
       <div className="flex items-center gap-4 mb-6">
-        <div className="flex-1 h-px bg-telegram-secondary"></div>
-        <span className="text-telegram-hint text-sm">После оплаты</span>
-        <div className="flex-1 h-px bg-telegram-secondary"></div>
+        <div className="flex-1 h-px bg-[#C4A484]"></div>
+        <span className="hint-text text-sm italic">после подношения</span>
+        <div className="flex-1 h-px bg-[#C4A484]"></div>
       </div>
 
       {/* Загрузка чека */}
@@ -101,32 +108,36 @@ export default function PaymentPage({ booking, apiUrl, onReceiptUploaded }: Prop
         
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="w-full py-4 bg-telegram-secondary text-telegram-text 
-                     rounded-lg flex items-center justify-center gap-2"
+          className="w-full py-4 marble-card flex items-center justify-center gap-2
+                     hover:border-[#5D4E37] transition-colors cursor-pointer"
         >
-          📎 {file ? file.name : 'Прикрепить чек'}
+          📜 {file ? file.name : 'Приложить свиток (чек)'}
         </button>
-        <p className="text-telegram-hint text-xs text-center mt-2">
-          Загрузите скриншот или PDF чека
+        <p className="hint-text text-xs text-center mt-2 italic">
+          Изображение или PDF подтверждения
         </p>
       </div>
 
       {/* Ошибка */}
       {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-600 rounded-lg text-sm">
-          {error}
+        <div className="mb-4 p-3 bg-[#722F37] bg-opacity-20 border border-[#722F37] 
+                        rounded text-[#722F37] text-sm text-center">
+          ⚠️ {error}
         </div>
       )}
 
-      {/* Кнопка завершения */}
+      {/* Кнопка подтверждения */}
       <button
         onClick={handleUpload}
         disabled={!file || uploading}
-        className="w-full py-4 bg-telegram-button text-telegram-buttonText 
-                   font-medium rounded-lg disabled:opacity-50"
+        className="w-full py-4 btn-ancient text-lg"
       >
-        {uploading ? 'Загрузка...' : '✅ Завершить бронирование'}
+        {uploading ? '⏳ Оракул думает...' : '✨ Завершить обряд'}
       </button>
+
+      {/* Лавровый венок внизу */}
+      <div className="flex-grow"></div>
+      <LaurelWreath className="w-40 h-10 mx-auto mt-6 text-[#6B8E23] opacity-50" />
     </div>
   );
 }
