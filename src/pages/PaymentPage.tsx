@@ -8,7 +8,7 @@ interface Props {
   onReceiptUploaded: () => void;
 }
 
-export default function PaymentPage({ booking, event, apiUrl, onReceiptUploaded }: Props) {
+export default function PaymentPage({ booking, apiUrl, onReceiptUploaded }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
