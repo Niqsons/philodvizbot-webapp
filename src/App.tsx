@@ -3,6 +3,7 @@ import BookingPage from './pages/BookingPage';
 import PaymentPage from './pages/PaymentPage';
 import SuccessPage from './pages/SuccessPage';
 import MyBookingsPage from './pages/MyBookingsPage';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -19,6 +20,8 @@ export function apiHeaders(): Record<string, string> {
   }
   return headers;
 }
+
+export { API_URL };
 
 interface Event {
   id: string;
@@ -40,17 +43,21 @@ interface BookingData {
   tbankLink: string;
 }
 
-type Page = 'booking' | 'payment' | 'success' | 'mybookings';
+type Page = 'booking' | 'payment' | 'success' | 'mybookings' | 'admin';
 
 export default function App() {
   const params = new URLSearchParams(window.location.search);
   const eventId = params.get('event');
   const pageParam = params.get('page');
+  const isAdmin = params.get('admin') === '1';
 
-  const [page, setPage] = useState<Page>(pageParam === 'mybookings' ? 'mybookings' : 'booking');
+  const initialPage: Page = isAdmin ? 'admin' : pageParam === 'mybookings' ? 'mybookings' : 'booking';
+  const needsEventLoad = initialPage === 'booking';
+
+  const [page, setPage] = useState<Page>(initialPage);
   const [event, setEvent] = useState<Event | null>(null);
   const [booking, setBooking] = useState<BookingData | null>(null);
-  const [loading, setLoading] = useState(pageParam !== 'mybookings');
+  const [loading, setLoading] = useState(needsEventLoad);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -59,8 +66,7 @@ export default function App() {
       tg.expand();
     }
 
-    // Если страница mybookings — не грузим событие
-    if (pageParam === 'mybookings') return;
+    if (!needsEventLoad) return;
 
     if (!eventId) {
       setError('Мероприятие не найдено');
@@ -93,10 +99,20 @@ export default function App() {
     if (tg) tg.close();
   };
 
+  // Админка
+  if (page === 'admin') {
+    return <AdminDashboard />;
+  }
+
+  // Мои брони
+  if (page === 'mybookings') {
+    return <MyBookingsPage apiUrl={API_URL} />;
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-telegram-hint">Загрузка...</div>
+        <div className="hint-text">Загрузка...</div>
       </div>
     );
   }
@@ -106,30 +122,19 @@ export default function App() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
           <div className="text-4xl mb-4">😔</div>
-          <div className="text-telegram-text">{error || 'Мероприятие не найдено'}</div>
+          <div className="hint-text">{error || 'Мероприятие не найдено'}</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-telegram-bg">
-      {page === 'mybookings' && (
-        <MyBookingsPage apiUrl={API_URL} />
-      )}
+    <div className="min-h-screen">
       {page === 'booking' && (
-        <BookingPage 
-          event={event} 
-          apiUrl={API_URL}
-          onBookingCreated={handleBookingCreated} 
-        />
+        <BookingPage event={event} apiUrl={API_URL} onBookingCreated={handleBookingCreated} />
       )}
       {page === 'payment' && booking && (
-        <PaymentPage 
-          booking={booking}
-          apiUrl={API_URL}
-          onReceiptUploaded={handleReceiptUploaded}
-        />
+        <PaymentPage booking={booking} apiUrl={API_URL} onReceiptUploaded={handleReceiptUploaded} />
       )}
       {page === 'success' && (
         <SuccessPage event={event} />
