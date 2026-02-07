@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import BookingPage from './pages/BookingPage';
 import PaymentPage from './pages/PaymentPage';
 import SuccessPage from './pages/SuccessPage';
+import MyBookingsPage from './pages/MyBookingsPage';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -39,22 +40,27 @@ interface BookingData {
   tbankLink: string;
 }
 
-type Page = 'booking' | 'payment' | 'success';
+type Page = 'booking' | 'payment' | 'success' | 'mybookings';
 
 export default function App() {
-  const [page, setPage] = useState<Page>('booking');
+  const params = new URLSearchParams(window.location.search);
+  const eventId = params.get('event');
+  const pageParam = params.get('page');
+
+  const [page, setPage] = useState<Page>(pageParam === 'mybookings' ? 'mybookings' : 'booking');
   const [event, setEvent] = useState<Event | null>(null);
   const [booking, setBooking] = useState<BookingData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(pageParam !== 'mybookings');
   const [error, setError] = useState<string | null>(null);
-
-  const eventId = new URLSearchParams(window.location.search).get('event');
 
   useEffect(() => {
     if (tg) {
       tg.ready();
       tg.expand();
     }
+
+    // Если страница mybookings — не грузим событие
+    if (pageParam === 'mybookings') return;
 
     if (!eventId) {
       setError('Мероприятие не найдено');
@@ -108,6 +114,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-telegram-bg">
+      {page === 'mybookings' && (
+        <MyBookingsPage apiUrl={API_URL} />
+      )}
       {page === 'booking' && (
         <BookingPage 
           event={event} 
