@@ -99,11 +99,13 @@ export default function BookingPage({ event, apiUrl, onBookingCreated }: Props) 
           </label>
           <textarea
             value={guestInfo}
-            onChange={(e) => setGuestInfo(e.target.value)}
+            onChange={(e) => { if (e.target.value.length <= 250) setGuestInfo(e.target.value); }}
             placeholder="Имя твоё и весть о тебе..."
+            maxLength={250}
             className="w-full p-3 ancient-input resize-none"
             rows={3}
           />
+          <p className="text-xs hint-text text-right mt-1">{guestInfo.length}/250</p>
         </div>
 
         <div className="mb-4">

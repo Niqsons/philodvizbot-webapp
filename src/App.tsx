@@ -137,7 +137,7 @@ export default function App() {
         <BookingPage event={event} apiUrl={API_URL} onBookingCreated={handleBookingCreated} />
       )}
       {page === 'payment' && booking && (
-        <PaymentPage booking={booking} apiUrl={API_URL} onReceiptUploaded={handleReceiptUploaded} />
+        <PaymentPage booking={booking} apiUrl={API_URL} onReceiptUploaded={handleReceiptUploaded} onMyBookings={handleGoToMyBookings} />
       )}
       {page === 'success' && (
         <SuccessPage event={event} onMyBookings={handleGoToMyBookings} />

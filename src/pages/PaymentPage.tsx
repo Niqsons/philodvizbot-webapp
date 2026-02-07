@@ -7,12 +7,14 @@ interface Props {
   booking: BookingData;
   apiUrl: string;
   onReceiptUploaded: () => void;
+  onMyBookings?: () => void;
 }
 
-export default function PaymentPage({ booking, apiUrl, onReceiptUploaded }: Props) {
+export default function PaymentPage({ booking, apiUrl, onReceiptUploaded, onMyBookings }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [creditConfirmed, setCreditConfirmed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fullyPaidByCredit = booking.amountToPay <= 0;
@@ -36,7 +38,7 @@ export default function PaymentPage({ booking, apiUrl, onReceiptUploaded }: Prop
       });
       const data = await response.json();
       if (data.error) setError(data.error);
-      else onReceiptUploaded();
+      else setCreditConfirmed(true);
     } catch {
       setError('Ошибка подтверждения');
     } finally {
@@ -81,8 +83,31 @@ export default function PaymentPage({ booking, apiUrl, onReceiptUploaded }: Prop
     }
   };
 
-  // Если полностью оплачено кредитом — показываем кнопку подтверждения
+  // Если полностью оплачено кредитом
   if (fullyPaidByCredit) {
+    // После успешного подтверждения — финальный экран
+    if (creditConfirmed) {
+      return (
+        <div className="min-h-screen p-4 flex flex-col items-center justify-center">
+          <LaurelWreath className="w-48 h-12 text-[#6B8E23] mb-4" />
+          <p className="text-2xl ancient-title mb-2">Добро пожаловать, мудрец!</p>
+          <p className="hint-text text-sm italic mb-2">Твоё место на симпосии забронировано</p>
+          <p className="text-sm text-[#6B8E23] mb-6">
+            💰 Списано {booking.creditUsed}₽ с баланса
+          </p>
+          {onMyBookings && (
+            <button
+              onClick={onMyBookings}
+              className="w-64 py-3 btn-ancient text-sm"
+            >
+              📋 Мои бронирования
+            </button>
+          )}
+        </div>
+      );
+    }
+
+    // Экран подтверждения (до нажатия кнопки)
     return (
       <div className="min-h-screen p-4 flex flex-col items-center justify-center">
         <Amphora className="w-16 h-24 text-[#C4A484] mb-4" />

@@ -42,6 +42,7 @@ export default function AdminEventDetail({ eventId, onBack }: Props) {
   const [confirmDeleteEvent, setConfirmDeleteEvent] = useState(false);
   const [deletingEvent, setDeletingEvent] = useState(false);
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
+  const [receiptLoading, setReceiptLoading] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [publishResult, setPublishResult] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
@@ -98,8 +99,27 @@ export default function AdminEventDetail({ eventId, onBack }: Props) {
     }
   };
 
-  const viewReceipt = (bookingId: number) => {
-    setReceiptUrl(`${API_URL}/api/admin/bookings/${bookingId}/receipt`);
+  const viewReceipt = async (bookingId: number) => {
+    setReceiptLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/bookings/${bookingId}/receipt`, {
+        headers: apiHeaders(),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({ error: 'Ошибка загрузки чека' }));
+        setError(data.error || 'Ошибка загрузки чека');
+        return;
+      }
+      const blob = await res.blob();
+      // Освобождаем предыдущий blob URL
+      if (receiptUrl) URL.revokeObjectURL(receiptUrl);
+      setReceiptUrl(URL.createObjectURL(blob));
+    } catch {
+      setError('Не удалось загрузить чек');
+    } finally {
+      setReceiptLoading(false);
+    }
   };
 
   const handlePublish = async () => {
@@ -201,17 +221,21 @@ export default function AdminEventDetail({ eventId, onBack }: Props) {
         )}
 
         {/* Просмотр чека */}
+        {receiptLoading && (
+          <div className="mb-4 marble-card p-3 text-center">
+            <span className="hint-text text-sm">⏳ Загрузка чека...</span>
+          </div>
+        )}
         {receiptUrl && (
           <div className="mb-4 marble-card p-3">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-bold">Скриншот оплаты</span>
-              <button onClick={() => setReceiptUrl(null)} className="text-xs hint-text">✕ Закрыть</button>
+              <button onClick={() => { if (receiptUrl) URL.revokeObjectURL(receiptUrl); setReceiptUrl(null); }} className="text-xs hint-text">✕ Закрыть</button>
             </div>
             <img
               src={receiptUrl}
               alt="Чек"
               className="w-full rounded border border-[#C4A484]"
-              onError={() => { setReceiptUrl(null); setError('Не удалось загрузить чек'); }}
             />
           </div>
         )}
@@ -225,13 +249,15 @@ export default function AdminEventDetail({ eventId, onBack }: Props) {
             {activeBookings.map(b => (
               <div key={b.id} className="marble-card p-3">
                 <div className="flex justify-between items-start mb-1">
-                  <div>
-                    <p className="font-bold text-sm">{b.guestInfo}</p>
-                    <p className="text-xs hint-text">
+                  <div className="min-w-0 flex-1 mr-2">
+                    <p className="font-bold text-sm">
                       {b.telegramUsername ? `@${b.telegramUsername}` : `ID: ${b.telegramId || '—'}`}
                     </p>
+                    <p className="text-xs hint-text mt-0.5 break-words overflow-hidden" style={{ wordBreak: 'break-word' }}>
+                      {b.guestInfo}
+                    </p>
                   </div>
-                  <span className="text-xs">{b.status === 'confirmed' ? '✅' : '⏳'}</span>
+                  <span className="text-xs flex-shrink-0">{b.status === 'confirmed' ? '✅' : '⏳'}</span>
                 </div>
                 <p className="text-xs hint-text mb-2">🎟 {b.seatsCount} мест · 💰 {b.totalAmount}₽</p>
 
