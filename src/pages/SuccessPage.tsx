@@ -3,9 +3,10 @@ import { Diogenes, LaurelWreath, Column } from '../components/AncientElements';
 
 interface Props {
   event: Event;
+  onMyBookings: () => void;
 }
 
-export default function SuccessPage({ event }: Props) {
+export default function SuccessPage({ event, onMyBookings }: Props) {
   return (
     <div className="min-h-screen p-4 flex flex-col items-center justify-center relative overflow-hidden">
       {/* Декоративные колонны */}
@@ -43,8 +44,16 @@ export default function SuccessPage({ event }: Props) {
           </div>
         </div>
 
+        {/* Кнопка мои бронирования */}
+        <button
+          onClick={onMyBookings}
+          className="mt-6 w-full py-3 btn-ancient text-sm"
+        >
+          📋 Мои бронирования
+        </button>
+
         {/* Цитата */}
-        <p className="mt-6 text-sm hint-text italic">
+        <p className="mt-4 text-sm hint-text italic">
           "Человеку нужна бочка и философия,<br/>
           остальное — суета"
         </p>

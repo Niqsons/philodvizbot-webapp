@@ -96,7 +96,10 @@ export default function App() {
 
   const handleReceiptUploaded = () => {
     setPage('success');
-    if (tg) tg.close();
+  };
+
+  const handleGoToMyBookings = () => {
+    setPage('mybookings');
   };
 
   // Админка
@@ -137,7 +140,7 @@ export default function App() {
         <PaymentPage booking={booking} apiUrl={API_URL} onReceiptUploaded={handleReceiptUploaded} />
       )}
       {page === 'success' && (
-        <SuccessPage event={event} />
+        <SuccessPage event={event} onMyBookings={handleGoToMyBookings} />
       )}
     </div>
   );
