@@ -125,13 +125,13 @@ export default function AdminDashboard() {
           onClick={() => setAdminPage('create-event')}
           className="w-full py-3 btn-ancient text-sm mb-4"
         >
-          ➕ Создать мероприятие
+          ➕ Создать симпосий
         </button>
 
         {/* Мероприятия */}
-        <h2 className="ancient-title text-lg mb-2">🏛 Мероприятия</h2>
+        <h2 className="ancient-title text-lg mb-2">🏛 Симпосии</h2>
         {events.length === 0 ? (
-          <p className="hint-text text-sm italic mb-4">Мероприятий нет</p>
+          <p className="hint-text text-sm italic mb-4">Симпосиев нет</p>
         ) : (
           <div className="space-y-2 mb-6">
             {events.map(ev => (
@@ -187,7 +187,7 @@ export default function AdminDashboard() {
                   className="w-full py-2 text-sm border-2 border-[#6B8E23] text-[#6B8E23] rounded 
                              hover:bg-[#6B8E23] hover:bg-opacity-10 transition-colors"
                 >
-                  ⚡ Создать мероприятие
+                  ⚡ Создать симпосий
                 </button>
               </div>
             ))}

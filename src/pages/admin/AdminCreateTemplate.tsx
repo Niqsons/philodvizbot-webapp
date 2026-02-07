@@ -14,6 +14,8 @@ export default function AdminCreateTemplate({ templateId, onBack }: Props) {
   const [tbankLink, setTbankLink] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const isEdit = !!templateId;
 
   useEffect(() => {
@@ -32,6 +34,25 @@ export default function AdminCreateTemplate({ templateId, onBack }: Props) {
         });
     }
   }, [templateId]);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/templates/${templateId}`, {
+        method: 'DELETE',
+        headers: apiHeaders(),
+      });
+      if (res.ok) onBack();
+      else {
+        const data = await res.json();
+        setError(data.error || 'Ошибка удаления');
+      }
+    } catch {
+      setError('Ошибка сервера');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const handleSubmit = async () => {
     setSaving(true);
@@ -104,6 +125,39 @@ export default function AdminCreateTemplate({ templateId, onBack }: Props) {
           >
             {saving ? '⏳...' : isEdit ? '✏️ Сохранить шаблон' : '📋 Создать шаблон'}
           </button>
+
+          {isEdit && (
+            <div className="mt-4 pt-4 border-t border-[#C4A484]">
+              {!confirmDelete ? (
+                <button
+                  onClick={() => setConfirmDelete(true)}
+                  className="w-full py-2 text-sm border-2 border-[#722F37] text-[#722F37] rounded 
+                             hover:bg-[#722F37] hover:bg-opacity-10 transition-colors"
+                >
+                  🗑 Удалить шаблон
+                </button>
+              ) : (
+                <div className="bg-[#722F37] bg-opacity-10 rounded p-3">
+                  <p className="text-sm text-center font-bold mb-2">Удалить шаблон #{templateId}?</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleDelete}
+                      disabled={deleting}
+                      className="flex-1 py-2 text-sm bg-[#722F37] text-[#F5F0E8] rounded font-bold"
+                    >
+                      {deleting ? '⏳...' : 'Да, удалить'}
+                    </button>
+                    <button
+                      onClick={() => setConfirmDelete(false)}
+                      className="flex-1 py-2 text-sm border border-[#C4A484] rounded"
+                    >
+                      Нет
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

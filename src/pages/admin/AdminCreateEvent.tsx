@@ -3,6 +3,7 @@ import { apiHeaders, API_URL } from '../../App';
 
 interface Props {
   templateId?: number;
+  editEvent?: { id: number; title: string; date: string; location: string; totalSeats: number; price: number; tbankLink: string };
   onBack: () => void;
 }
 
@@ -15,17 +16,18 @@ interface TemplateData {
   tbankLink: string | null;
 }
 
-export default function AdminCreateEvent({ templateId, onBack }: Props) {
-  const [title, setTitle] = useState('');
-  const [date, setDate] = useState('');
-  const [location, setLocation] = useState('');
-  const [totalSeats, setTotalSeats] = useState('');
-  const [price, setPrice] = useState('');
-  const [tbankLink, setTbankLink] = useState('');
+export default function AdminCreateEvent({ templateId, editEvent, onBack }: Props) {
+  const [title, setTitle] = useState(editEvent?.title || '');
+  const [date, setDate] = useState(editEvent?.date || '');
+  const [location, setLocation] = useState(editEvent?.location || '');
+  const [totalSeats, setTotalSeats] = useState(editEvent ? String(editEvent.totalSeats) : '');
+  const [price, setPrice] = useState(editEvent ? String(editEvent.price) : '');
+  const [tbankLink, setTbankLink] = useState(editEvent?.tbankLink || '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [template, setTemplate] = useState<TemplateData | null>(null);
   const isFromTemplate = !!templateId;
+  const isEdit = !!editEvent;
 
   useEffect(() => {
     if (templateId) {
@@ -50,7 +52,13 @@ export default function AdminCreateEvent({ templateId, onBack }: Props) {
     setError(null);
     try {
       let res: Response;
-      if (isFromTemplate && templateId) {
+      if (isEdit) {
+        res = await fetch(`${API_URL}/api/admin/events/${editEvent.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', ...apiHeaders() },
+          body: JSON.stringify({ title, date, location, totalSeats: Number(totalSeats), price: Number(price), tbankLink }),
+        });
+      } else if (isFromTemplate && templateId) {
         res = await fetch(`${API_URL}/api/admin/events/from-template/${templateId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...apiHeaders() },
@@ -78,7 +86,7 @@ export default function AdminCreateEvent({ templateId, onBack }: Props) {
       <div className="max-w-md mx-auto">
         <button onClick={onBack} className="mb-3 text-sm hint-text">← Назад</button>
         <h1 className="text-xl ancient-title mb-4">
-          {isFromTemplate ? `⚡ Из шаблона #${templateId}` : '➕ Новое мероприятие'}
+          {isEdit ? '✏️ Редактирование' : isFromTemplate ? `⚡ Из шаблона #${templateId}` : '➕ Новый симпосий'}
         </h1>
 
         {error && (
@@ -105,7 +113,7 @@ export default function AdminCreateEvent({ templateId, onBack }: Props) {
             />
           </div>
 
-          {!isFromTemplate && (
+          {(!isFromTemplate || isEdit) && (
             <>
               <div>
                 <label className="block text-sm font-bold mb-1">Место</label>
@@ -154,7 +162,7 @@ export default function AdminCreateEvent({ templateId, onBack }: Props) {
             disabled={saving || !date}
             className="w-full py-3 btn-ancient text-sm"
           >
-            {saving ? '⏳...' : '🏛 Создать мероприятие'}
+            {saving ? '⏳...' : isEdit ? '✏️ Принять изменения' : '🏛 Создать симпосий'}
           </button>
         </div>
       </div>

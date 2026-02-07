@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import type { BookingData } from '../App';
 import { apiHeaders } from '../App';
 import { Amphora, LaurelWreath } from '../components/AncientElements';
@@ -17,12 +17,8 @@ export default function PaymentPage({ booking, apiUrl, onReceiptUploaded }: Prop
 
   const fullyPaidByCredit = booking.amountToPay <= 0;
 
-  // Если полностью оплачено кредитами — сразу подтверждаем
-  useEffect(() => {
-    if (fullyPaidByCredit) {
-      confirmWithCredit();
-    }
-  }, []);
+  // Если полностью оплачено кредитами — НЕ подтверждаем автоматически,
+  // ждём нажатия кнопки пользователем
 
   const confirmWithCredit = async () => {
     setUploading(true);
@@ -85,7 +81,7 @@ export default function PaymentPage({ booking, apiUrl, onReceiptUploaded }: Prop
     }
   };
 
-  // Если полностью оплачено кредитом — показываем лоадер
+  // Если полностью оплачено кредитом — показываем кнопку подтверждения
   if (fullyPaidByCredit) {
     return (
       <div className="min-h-screen p-4 flex flex-col items-center justify-center">
@@ -94,8 +90,14 @@ export default function PaymentPage({ booking, apiUrl, onReceiptUploaded }: Prop
         <p className="hint-text text-sm mt-2">
           Списано {booking.creditUsed}₽ с баланса
         </p>
-        {uploading && <p className="hint-text mt-4">⏳ Подтверждение...</p>}
         {error && <p className="text-[#722F37] mt-4">⚠️ {error}</p>}
+        <button
+          onClick={confirmWithCredit}
+          disabled={uploading}
+          className="mt-6 w-64 py-4 btn-ancient text-lg"
+        >
+          {uploading ? '⏳ Подтверждение...' : '✨ Подтвердить бронь'}
+        </button>
       </div>
     );
   }

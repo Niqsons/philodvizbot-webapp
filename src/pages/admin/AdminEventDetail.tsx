@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiHeaders, API_URL } from '../../App';
+import AdminCreateEvent from './AdminCreateEvent';
 
 interface Props {
   eventId: number;
@@ -41,6 +42,9 @@ export default function AdminEventDetail({ eventId, onBack }: Props) {
   const [confirmDeleteEvent, setConfirmDeleteEvent] = useState(false);
   const [deletingEvent, setDeletingEvent] = useState(false);
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState(false);
+  const [publishResult, setPublishResult] = useState<string | null>(null);
+  const [editMode, setEditMode] = useState(false);
 
   const loadEvent = async () => {
     try {
@@ -98,6 +102,24 @@ export default function AdminEventDetail({ eventId, onBack }: Props) {
     setReceiptUrl(`${API_URL}/api/admin/bookings/${bookingId}/receipt`);
   };
 
+  const handlePublish = async () => {
+    setPublishing(true);
+    setPublishResult(null);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/events/${eventId}/publish`, {
+        method: 'POST',
+        headers: apiHeaders(),
+      });
+      const data = await res.json();
+      if (res.ok) setPublishResult('✅ Опубликовано в канал!');
+      else setPublishResult(`❌ ${data.error}`);
+    } catch {
+      setPublishResult('❌ Ошибка публикации');
+    } finally {
+      setPublishing(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -117,6 +139,23 @@ export default function AdminEventDetail({ eventId, onBack }: Props) {
 
   if (!event) return null;
 
+  if (editMode) {
+    return (
+      <AdminCreateEvent
+        editEvent={{
+          id: event.id,
+          title: event.title,
+          date: event.date,
+          location: event.location,
+          totalSeats: event.totalSeats,
+          price: event.price,
+          tbankLink: event.tbankLink,
+        }}
+        onBack={() => { setEditMode(false); setLoading(true); loadEvent(); }}
+      />
+    );
+  }
+
   const activeBookings = event.bookings.filter(b => b.status !== 'cancelled');
   const cancelledBookings = event.bookings.filter(b => b.status === 'cancelled');
 
@@ -133,6 +172,26 @@ export default function AdminEventDetail({ eventId, onBack }: Props) {
             <div>📍 {event.location}</div>
             <div>💰 {event.price}₽ · 🎟 {event.bookedSeats}/{event.totalSeats} мест</div>
           </div>
+          <div className="flex gap-2 mt-3">
+            <button
+              onClick={() => setEditMode(true)}
+              className="flex-1 py-2 text-sm border-2 border-[#C4A484] rounded 
+                         hover:border-[#5D4E37] transition-colors font-bold"
+            >
+              ✏️ Редактировать
+            </button>
+            <button
+              onClick={handlePublish}
+              disabled={publishing}
+              className="flex-1 py-2 text-sm border-2 border-[#6B8E23] text-[#6B8E23] rounded 
+                         hover:bg-[#6B8E23] hover:bg-opacity-10 transition-colors font-bold"
+            >
+              {publishing ? '⏳...' : '📢 Опубликовать'}
+            </button>
+          </div>
+          {publishResult && (
+            <p className="text-xs text-center mt-2">{publishResult}</p>
+          )}
         </div>
 
         {error && (
@@ -249,13 +308,13 @@ export default function AdminEventDetail({ eventId, onBack }: Props) {
               className="w-full py-2 text-sm border-2 border-[#722F37] text-[#722F37] rounded 
                          hover:bg-[#722F37] hover:bg-opacity-10"
             >
-              🗑 Отменить мероприятие
+              🗑 Отменить симпосий
             </button>
           ) : (
             <div className="bg-[#722F37] bg-opacity-10 rounded p-3">
-              <p className="text-sm text-center font-bold mb-1">Отменить мероприятие?</p>
+              <p className="text-sm text-center font-bold mb-1">Отменить симпосий?</p>
               <p className="text-xs text-center hint-text mb-3">
-                Все активные брони будут отменены, кредиты возвращены
+              Все активные брони будут отменены, кредиты возвращены
               </p>
               <div className="flex gap-2">
                 <button
