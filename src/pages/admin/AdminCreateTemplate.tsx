@@ -94,7 +94,10 @@ export default function AdminCreateTemplate({ templateId, onBack }: Props) {
           <div>
             <label className="block text-sm font-bold mb-1">Название *</label>
             <input value={title} onChange={e => setTitle(e.target.value)}
-              placeholder="Название мероприятия" className="w-full p-3 ancient-input" />
+              placeholder="Название мероприятия" 
+              maxLength={250}
+              className="w-full p-3 ancient-input" />
+            <p className="text-xs hint-text mt-1">{title.length}/250</p>
           </div>
           <div>
             <label className="block text-sm font-bold mb-1">Место</label>

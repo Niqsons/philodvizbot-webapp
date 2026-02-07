@@ -101,14 +101,16 @@ export default function AdminCreateEvent({ templateId, editEvent, onBack }: Prop
             <input
               value={title} onChange={e => setTitle(e.target.value)}
               placeholder={template?.title || 'Название мероприятия'}
+              maxLength={250}
               className="w-full p-3 ancient-input"
             />
+            <p className="text-xs hint-text mt-1">{title.length}/250</p>
           </div>
           <div>
             <label className="block text-sm font-bold mb-1">Дата и время *</label>
             <input
+              type="datetime-local"
               value={date} onChange={e => setDate(e.target.value)}
-              placeholder="напр. 12/02/26 19:30"
               className="w-full p-3 ancient-input"
             />
           </div>

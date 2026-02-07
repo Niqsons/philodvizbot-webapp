@@ -251,7 +251,18 @@ export default function AdminEventDetail({ eventId, onBack }: Props) {
                 <div className="flex justify-between items-start mb-1">
                   <div className="min-w-0 flex-1 mr-2">
                     <p className="font-bold text-sm">
-                      {b.telegramUsername ? `@${b.telegramUsername}` : `ID: ${b.telegramId || '—'}`}
+                      {b.telegramUsername ? (
+                        <a 
+                          href={`https://t.me/${b.telegramUsername}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          @{b.telegramUsername}
+                        </a>
+                      ) : (
+                        `ID: ${b.telegramId || '—'}`
+                      )}
                     </p>
                     <p className="text-xs hint-text mt-0.5 break-words overflow-hidden" style={{ wordBreak: 'break-word' }}>
                       {b.guestInfo}
