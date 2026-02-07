@@ -3,10 +3,22 @@ import BookingPage from './pages/BookingPage';
 import PaymentPage from './pages/PaymentPage';
 import SuccessPage from './pages/SuccessPage';
 
-// API URL (для разработки — localhost, для прода — ваш сервер)
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-// Типы
+// Telegram WebApp
+const tg = (window as any).Telegram?.WebApp;
+
+// Хелпер для запросов с Telegram Auth
+export function apiHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    'ngrok-skip-browser-warning': 'true',
+  };
+  if (tg?.initData) {
+    headers['X-Telegram-Init-Data'] = tg.initData;
+  }
+  return headers;
+}
+
 interface Event {
   id: string;
   title: string;
@@ -22,6 +34,8 @@ interface Event {
 interface BookingData {
   bookingId: string;
   totalAmount: number;
+  creditUsed: number;
+  amountToPay: number;
   tbankLink: string;
 }
 
@@ -34,21 +48,14 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Получаем ID мероприятия из URL
   const eventId = new URLSearchParams(window.location.search).get('event');
 
-  // Telegram WebApp
-  const tg = (window as any).Telegram?.WebApp;
-
-
   useEffect(() => {
-    // Инициализация Telegram WebApp
     if (tg) {
       tg.ready();
       tg.expand();
     }
 
-    // Загружаем данные мероприятия
     if (!eventId) {
       setError('Мероприятие не найдено');
       setLoading(false);
@@ -56,17 +63,12 @@ export default function App() {
     }
 
     fetch(`${API_URL}/api/events/${eventId}`, {
-      headers: {
-        'ngrok-skip-browser-warning': 'true'
-      }
+      headers: apiHeaders(),
     })
       .then(res => res.json())
       .then(data => {
-        if (data.error) {
-          setError(data.error);
-        } else {
-          setEvent(data);
-        }
+        if (data.error) setError(data.error);
+        else setEvent(data);
         setLoading(false);
       })
       .catch(() => {
@@ -75,21 +77,16 @@ export default function App() {
       });
   }, [eventId]);
 
-  // Обработчик создания брони
   const handleBookingCreated = (bookingData: BookingData) => {
     setBooking(bookingData);
     setPage('payment');
   };
 
-  // Обработчик успешной загрузки чека
   const handleReceiptUploaded = () => {
     setPage('success');
-    if (tg) {
-      tg.close();
-    }
+    if (tg) tg.close();
   };
 
-  // Загрузка
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -98,7 +95,6 @@ export default function App() {
     );
   }
 
-  // Ошибка
   if (error || !event) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -110,7 +106,6 @@ export default function App() {
     );
   }
 
-
   return (
     <div className="min-h-screen bg-telegram-bg">
       {page === 'booking' && (
@@ -120,7 +115,6 @@ export default function App() {
           onBookingCreated={handleBookingCreated} 
         />
       )}
-      
       {page === 'payment' && booking && (
         <PaymentPage 
           booking={booking}
@@ -128,7 +122,6 @@ export default function App() {
           onReceiptUploaded={handleReceiptUploaded}
         />
       )}
-      
       {page === 'success' && (
         <SuccessPage event={event} />
       )}

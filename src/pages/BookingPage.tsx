@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Event, BookingData } from '../App';
+import { apiHeaders } from '../App';
 import { Column, Amphora, Diogenes, LaurelWreath } from '../components/AncientElements';
 
 interface Props {
@@ -27,21 +28,18 @@ export default function BookingPage({ event, apiUrl, onBookingCreated }: Props) 
     setError(null);
 
     try {
-      const tg = (window as any).Telegram?.WebApp;
-      const user = tg?.initDataUnsafe?.user;
-
+      // Telegram Auth: initData отправляется через apiHeaders()
+      // Сервер сам извлечёт telegramId/username из подписанных данных
       const response = await fetch(`${apiUrl}/api/bookings`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true'
+          ...apiHeaders(),
         },
         body: JSON.stringify({
           eventId: event.id,
           guestInfo: guestInfo.trim(),
           seatsCount,
-          telegramId: user?.id,
-          telegramUsername: user?.username,
         }),
       });
 
@@ -59,29 +57,22 @@ export default function BookingPage({ event, apiUrl, onBookingCreated }: Props) 
     }
   };
 
-
   return (
     <div className="min-h-screen p-4 relative overflow-hidden">
-      {/* Декоративные колонны по бокам */}
       <Column className="absolute left-2 top-0 h-full w-8 text-[#C4A484] opacity-30" />
       <Column className="absolute right-2 top-0 h-full w-8 text-[#C4A484] opacity-30" />
       
-      {/* Основной контент */}
       <div className="relative z-10 max-w-md mx-auto">
-        
-        {/* Диоген наверху */}
         <div className="flex justify-center mb-2">
           <Diogenes className="w-20 h-24" />
         </div>
 
-        {/* Заголовок с лавровым венком */}
         <div className="text-center mb-4">
           <LaurelWreath className="w-32 h-8 mx-auto text-[#6B8E23] mb-1" />
           <h1 className="text-2xl ancient-title">{event.title}</h1>
           <p className="text-sm hint-text italic mt-1">Симпосий мудрецов</p>
         </div>
 
-        {/* Информация о мероприятии */}
         <div className="marble-card p-4 mb-4">
           <div className="flex items-start gap-3">
             <Amphora className="w-10 h-16 text-[#C4A484] flex-shrink-0" />
@@ -102,7 +93,6 @@ export default function BookingPage({ event, apiUrl, onBookingCreated }: Props) 
           </div>
         </div>
 
-        {/* Поле ввода имени */}
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2 ancient-title">
             🪶 Как тебя величать, о философ?
@@ -116,7 +106,6 @@ export default function BookingPage({ event, apiUrl, onBookingCreated }: Props) 
           />
         </div>
 
-        {/* Выбор количества мест */}
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2 ancient-title">
             🍷 Сколько мест за столом?
@@ -139,8 +128,6 @@ export default function BookingPage({ event, apiUrl, onBookingCreated }: Props) 
           </div>
         </div>
 
-
-        {/* Итого */}
         <div className="marble-card p-4 mb-4">
           <div className="flex justify-between items-center">
             <span className="hint-text">Дань за симпосий:</span>
@@ -149,14 +136,12 @@ export default function BookingPage({ event, apiUrl, onBookingCreated }: Props) 
           <p className="text-xs hint-text mt-1 italic text-right">(в рублях)</p>
         </div>
 
-        {/* Ошибка */}
         {error && (
           <div className="mb-4 p-3 bg-[#722F37] bg-opacity-20 border border-[#722F37] rounded text-[#722F37] text-sm text-center">
             ⚠️ {error}
           </div>
         )}
 
-        {/* Кнопка */}
         <button
           onClick={handleSubmit}
           disabled={loading || event.availableSeats === 0}
