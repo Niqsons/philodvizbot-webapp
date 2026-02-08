@@ -19,11 +19,6 @@ export default function BookingPage({ event, apiUrl, onBookingCreated }: Props) 
   const maxSeats = Math.min(5, event.availableSeats);
 
   const handleSubmit = async () => {
-    if (!guestInfo.trim()) {
-      setError('Назови себя, о странник!');
-      return;
-    }
-
     setLoading(true);
     setError(null);
 
@@ -95,7 +90,7 @@ export default function BookingPage({ event, apiUrl, onBookingCreated }: Props) 
 
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2 ancient-title">
-            🪶 Как тебя величать, о философ?
+            🪶 Как тебя величать, о философ? <span className="hint-text text-xs">(необязательно)</span>
           </label>
           <textarea
             value={guestInfo}
